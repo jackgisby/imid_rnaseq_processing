@@ -10,7 +10,7 @@ GSE="GSE214215"
 
 # Where to output results
 RES_DIR="./results"
-TMP_DIR="./temp"
+TMP_DIR="/mnt/e/nextflow_temp/"
 
 # Whether to download data from GEO/SRA
 RUN_FETCHNGS=true
@@ -22,6 +22,7 @@ create_folder () {
   fi
 }
 
+create_folder "${RES_DIR}"
 create_folder "${GSE}"
 
 # Set nextflow variables
@@ -39,7 +40,7 @@ if [ "${RUN_FETCHNGS}" = true ]; then
     -log "${RES_DIR}/$GSE/.nextflow.log" \
     run nf-core/fetchngs \
     -r 1.10.0 \
-    -profile docker \
+    -profile conda \
     --input "${RES_DIR}/$GSE/study_id.csv" \
     --outdir "${RES_DIR}/$GSE" \
     -c "conf/fetchngs.conf"
@@ -49,6 +50,6 @@ fi
 # nextflow run nf-core/rnaseq \
 #   -r 3.12.0 \
 #   -profile docker \
-#   --input "${RES_DIR}/$GSE/sample_ids.csv" \
+#   --input "${RES_DIR}/$GSE/samplesheet/samplesheet.csv" \
 #   --outdir "${RES_DIR}/$GSE" \
 #   -c "conf/rnaseq.conf"
