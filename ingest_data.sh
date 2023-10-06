@@ -52,7 +52,7 @@ if [ "${RUN_FETCHNGS}" = true ]; then
     -profile docker \
     --input "${RES_DIR}/${GSE}/study_id.csv" \
     --outdir "${TMP_DIR}/${GSE}" \
-    -c "conf/fetchngs.conf"
+    -c "conf/fetchngs.config"
 
   create_folder "${RES_DIR}/${GSE}/samplesheet"
   cp_from_tmp "samplesheet/samplesheet.csv"
@@ -63,7 +63,6 @@ fi
 
 # Process data
 # First time this pipeline is run, a salmon index will be created. In subsequent runs, use this index. 
-#TODO: specify multiqc config?
 nextflow \
   -log "${RES_DIR}/${GSE}/rnaseq/.nextflow.log" \
   run nf-core/rnaseq \
@@ -71,10 +70,21 @@ nextflow \
   -profile docker \
   --input "${RES_DIR}/$GSE/samplesheet/samplesheet.csv" \
   --outdir "${TMP_DIR}/${GSE}" \
-  -c "conf/rnaseq.conf"
+  -c "conf/rnaseq.config"
 
 cp_from_tmp "multiqc"
 cp_from_tmp "salmon"
+
+# Use nextflow to create normalised dataset with edgeR (TMM) - from gene_counts.rds
+# https://bioconductor.org/packages/release/bioc/vignettes/tximport/inst/doc/tximport.html
+# https://github.com/nf-core/rnaseq/blob/3.12.0/bin/salmon_tximport.r
+nextflow \
+  -log "${RES_DIR}/${GSE}/post_processing/.nextflow.log" \
+  run main.nf \
+  -profile docker \
+  --input "${RES_DIR}/${GSE}" \
+  --outdir "${RES_DIR}/${GSE}" \
+  -c "conf/post_processing.config"
 
 # Remove temporary files, including fastqs
 # rm -r "${TMP_DIR}"

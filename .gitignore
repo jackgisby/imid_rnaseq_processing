@@ -3,6 +3,7 @@ work/
 temp/
 results/
 null/
+genomes/
 
 # Nextflow files/folders
 *.nextflow.log*
