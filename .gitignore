@@ -1,0 +1,3 @@
+work/
+temp/
+*.nextflow.log*
