@@ -1,7 +1,12 @@
 # Pipeline outputs
 work/
 temp/
+results/
+null/
 
 # Nextflow files/folders
 *.nextflow.log*
 .nextflow/
+
+# Other
+versions.yml
