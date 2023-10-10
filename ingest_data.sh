@@ -75,6 +75,10 @@ nextflow \
 cp_from_tmp "multiqc"
 cp_from_tmp "salmon"
 
+create_folder "${RES_DIR}/${GSE}/normalised_data"
+create_folder "${RES_DIR}/${GSE}/qc"
+create_folder "${RES_DIR}/${GSE}/gse_pheno"
+
 # Use nextflow to create normalised dataset with edgeR (TMM) - from gene_counts.rds
 # https://bioconductor.org/packages/release/bioc/vignettes/tximport/inst/doc/tximport.html
 # https://github.com/nf-core/rnaseq/blob/3.12.0/bin/salmon_tximport.r
