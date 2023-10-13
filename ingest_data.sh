@@ -1,21 +1,36 @@
 #!/bin/bash
 #$ -pe smp 2
 #$ -l h_vmem=4G
-#$ -l h_rt=1:0:0
-#$ -cwd
+#$ -l h_rt=10:0:0
+#$ -wd ~/nextflow/imid_rnaseq/imid_rnaseq_processing/
+#$ -o ~/nextflow/imid_rnaseq/job_out/
+#$ -e ~/nextflow/imid_rnaseq/job_out/
 #$ -j y
 
+# qsub ~/nextflow/imid_rnaseq/imid_rnaseq_processing/ingest_data.sh
+
+# Fail on error
 set -e
+
+# Load nextflow
+module load nextflow
+
+nextflow help
 
 # Dataset to be processed
 GSE="GSM2879618"
 
 # Where to output results
-RES_DIR="./results"
-TMP_DIR="/mnt/c/Users/Public/Downloads/temp/"
+RES_DIR="/data/home/${USER}/nextflow/imid_rnaseq/test"
+TMP_DIR="/data/scratch/${USER}/temp/"
 
+## Other settings
 # Whether to download data from GEO/SRA
 RUN_FETCHNGS=false
+RUN_RNASEQ=true
+
+# Nextflow profile to use
+PROFILE="singularity"
 
 # Function creates subfolders within the results
 create_folder () {
@@ -49,10 +64,11 @@ if [ "${RUN_FETCHNGS}" = true ]; then
     -log "${RES_DIR}/${GSE}/fetchngs/.nextflow.log" \
     run nf-core/fetchngs \
     -r 1.10.0 \
-    -profile docker \
+    -profile "${PROFILE}" \
     --input "${RES_DIR}/${GSE}/study_id.csv" \
     --outdir "${TMP_DIR}/${GSE}" \
-    -c "conf/fetchngs.config"
+    -c "conf/fetchngs.config" \
+    -c "conf/apocrita.config"
 
   create_folder "${RES_DIR}/${GSE}/samplesheet"
   cp_from_tmp "samplesheet/samplesheet.csv"
@@ -63,17 +79,22 @@ fi
 
 # Process data
 # First time this pipeline is run, a salmon index will be created. In subsequent runs, use this index. 
-nextflow \
-  -log "${RES_DIR}/${GSE}/rnaseq/.nextflow.log" \
-  run nf-core/rnaseq \
-  -r 3.12.0 \
-  -profile docker \
-  --input "${RES_DIR}/$GSE/samplesheet/samplesheet.csv" \
-  --outdir "${TMP_DIR}/${GSE}" \
-  -c "conf/rnaseq.config"
+if [ "${RUN_RNASEQ}" = true ]; then
+  nextflow \
+    -log "${RES_DIR}/${GSE}/rnaseq/.nextflow.log" \
+    run nf-core/rnaseq \
+    -r 3.12.0 \
+    -profile "${PROFILE}" \
+    --input "${RES_DIR}/${GSE}/samplesheet/samplesheet.csv" \
+    --outdir "${TMP_DIR}/${GSE}" \
+    -c "conf/rnaseq.config" \
+    -c "conf/apocrita.config" \
+    -resume
 
-cp_from_tmp "multiqc"
-cp_from_tmp "salmon"
+  cp_from_tmp "multiqc"
+  cp_from_tmp "salmon"
+
+fi
 
 create_folder "${RES_DIR}/${GSE}/normalised_data"
 create_folder "${RES_DIR}/${GSE}/qc"
@@ -85,11 +106,12 @@ create_folder "${RES_DIR}/${GSE}/gse_pheno"
 nextflow \
   -log "${RES_DIR}/${GSE}/post_processing/.nextflow.log" \
   run main.nf \
-  -profile docker \
+  -profile "${PROFILE}" \
   --input "${RES_DIR}/${GSE}/salmon/salmon.merged.gene_counts.rds" \
   --outdir "${RES_DIR}/${GSE}" \
   --geo "${GSE}" \
-  -c "conf/post_processing.config"
+  -c "conf/post_processing.config" \
+  -c "conf/apocrita.config"
 
 # Remove temporary files, including fastqs
 # rm -r "${TMP_DIR}"
