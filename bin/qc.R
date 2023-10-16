@@ -11,14 +11,13 @@ for (p in c("factoextra", "ggplot2", "ggpubr")) {
 theme_set(theme_pubr(border = TRUE))
 theme_update(text = element_text(size = 8))
 
-filtered_logcpm <- read.csv("filtered_logcpm.csv")
+filtered_logcpm <- read.csv("filtered_logcpm.csv", row.names = 1)
 
 res.pca <- prcomp(filtered_logcpm, center = TRUE, scale. = TRUE)
 
 png("qc_pca.png")
 factoextra::fviz_pca_ind(
     res.pca, 
-    label="var", 
     addEllipses=FALSE
 )
 dev.off()
