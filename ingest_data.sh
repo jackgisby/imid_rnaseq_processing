@@ -1,7 +1,7 @@
 #!/bin/bash
 #$ -pe smp 2
 #$ -l h_vmem=4G
-#$ -l h_rt=10:0:0
+#$ -l h_rt=1:0:0
 #$ -wd ~/nextflow/imid_rnaseq/imid_rnaseq_processing/
 #$ -o ~/nextflow/imid_rnaseq/job_out/
 #$ -e ~/nextflow/imid_rnaseq/job_out/
@@ -27,7 +27,8 @@ TMP_DIR="/data/scratch/${USER}/temp/"
 ## Other settings
 # Whether to download data from GEO/SRA
 RUN_FETCHNGS=false
-RUN_RNASEQ=true
+RUN_RNASEQ=false
+RESUME=true
 
 # Nextflow profile to use
 PROFILE="singularity"
@@ -54,6 +55,9 @@ export NXF_TMP="${TMP_DIR}"
 export NXF_WORK="${TMP_DIR}/work"
 export NXF_OPTS="-Xms1g -Xmx4g"
 
+if [ "${RESUME}" = true ]; then
+  RESUME="-resume"
+fi
 # Get data using fetchngs
 if [ "${RUN_FETCHNGS}" = true ]; then
 
@@ -68,7 +72,8 @@ if [ "${RUN_FETCHNGS}" = true ]; then
     --input "${RES_DIR}/${GSE}/study_id.csv" \
     --outdir "${TMP_DIR}/${GSE}" \
     -c "conf/fetchngs.config" \
-    -c "conf/apocrita.config"
+    -c "conf/apocrita.config" \
+    "${RESUME}"
 
   create_folder "${RES_DIR}/${GSE}/samplesheet"
   cp_from_tmp "samplesheet/samplesheet.csv"
@@ -89,7 +94,8 @@ if [ "${RUN_RNASEQ}" = true ]; then
     --outdir "${TMP_DIR}/${GSE}" \
     -c "conf/rnaseq.config" \
     -c "conf/apocrita.config" \
-    -resume
+    -resume \
+    "${RESUME}"
 
   cp_from_tmp "multiqc"
   cp_from_tmp "salmon"
@@ -110,8 +116,9 @@ nextflow \
   --input "${RES_DIR}/${GSE}/salmon/" \
   --outdir "${RES_DIR}/${GSE}" \
   --geo "${GSE}" \
+  -c "conf/apocrita.config" \
   -c "conf/post_processing.config" \
-  -c "conf/apocrita.config"
+    "${RESUME}"
 
 # Remove temporary files, including fastqs
 # rm -r "${TMP_DIR}"
