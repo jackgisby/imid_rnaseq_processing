@@ -1,25 +1,41 @@
 #!/usr/bin/env Rscript
 
+# Script arguments
+args = commandArgs(trailingOnly=TRUE)
+if (length(args) < 1) {
+  stop("Usage: normalise.r <path>", call.=FALSE)
+}
+path <- args[1]
+
+# Debug messages (stderr)
+message("Input path      (Arg 1): ", path)
+
 # Load/install packages
 if (!require("BiocManager", quietly = TRUE, character.only = TRUE)) install.packages("BiocManager")
 
-for (p in c("edgeR", "SummarizedExperiment")) {
+for (p in c("edgeR", "SummarizedExperiment", "tximport")) {
     if (!require(p, character.only = TRUE)) {
         BiocManager::install(p, suppressUpdates = TRUE)
         library(p, character.only = TRUE)
     }
 }
 
-# Load data as SummarizedExperiment
+# Convert transcript-level quant files to gene-level counts with tximport
+quant_files = list.files(path, pattern = "quant.sf", recursive = T, full.names = T)
+names(quant_files) <- basename(dirname(fns))
+
+tx2gene = read.csv(file.path(path, "salmon_tx2gene.tsv"), sep="\t", header = FALSE)
+colnames(tx2gene) <- c("TXNAME", "GENEID", "SYMBOL")
+
 # Counts = counts
 # Abundances = TPM?
-# Length = effectie gene lengths
-se = readRDS(file.path("salmon.merged.gene_counts.rds"))
-print(assays(se))
+# Length = effective gene lengths
+txi = tximport::tximport(quant_files, type = "salmon", tx2gene = tx2gene)
+head(txi$counts)
 
 # Normalisation based on https://bioconductor.org/packages/release/bioc/vignettes/tximport/inst/doc/tximport.html
-cts <- assay(se, "counts")
-normMat <- assay(se, "length")
+cts <- txi$counts
+normMat <- txi$length
 
 # Obtaining per-observation scaling factors for length, adjusted to avoid
 # changing the magnitude of the counts.

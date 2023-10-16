@@ -6,7 +6,7 @@ process NORMALISE {
     stageInMode 'copy'
 
     input:
-    path salmon_merged_counts
+    path salmon_out
 
     output:
     path "unfiltered_dgelist.rds"
@@ -18,6 +18,6 @@ process NORMALISE {
     """
     ls
     echo "$projectDir"
-    Rscript --verbose "$projectDir/bin/normalise.R"
+    Rscript --verbose "$projectDir/bin/normalise.R" ""
     """
 }

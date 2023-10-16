@@ -6,4 +6,4 @@ FROM bioconductor/bioconductor_docker:latest
 
 # install extra packages
 RUN R -e 'install.packages(c("factoextra", "ggplot2", "ggpubr"))'
-RUN R -e 'BiocManager::install(c("GEOquery", "edgeR", "SummarizedExperiment"))'
+RUN R -e 'BiocManager::install(c("GEOquery", "edgeR", "SummarizedExperiment", "tximport"))'

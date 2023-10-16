@@ -107,7 +107,7 @@ nextflow \
   -log "${RES_DIR}/${GSE}/post_processing/.nextflow.log" \
   run main.nf \
   -profile "${PROFILE}" \
-  --input "${RES_DIR}/${GSE}/salmon/salmon.merged.gene_counts.rds" \
+  --input "${RES_DIR}/${GSE}/salmon/" \
   --outdir "${RES_DIR}/${GSE}" \
   --geo "${GSE}" \
   -c "conf/post_processing.config" \

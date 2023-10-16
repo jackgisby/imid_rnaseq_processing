@@ -6,10 +6,10 @@ include { QC        } from "$baseDir/modules/qc.nf"
 // main pipeline
 workflow POST_PROCESSING {
 
-    salmon_merged_counts = Channel.fromPath("$params.input")
+    salmon_quantified = Channel.fromPath("$params.input")
 
-    // Normalise count data
-    NORMALISE(salmon_merged_counts)
+    // Import and normalise count data
+    NORMALISE(salmon_quantified)
 
     // Perform post-quantification QC
     QC(NORMALISE.out.filtered_logcpm)
