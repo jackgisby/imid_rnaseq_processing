@@ -20,9 +20,13 @@ for (p in c("edgeR", "SummarizedExperiment", "tximport")) {
     }
 }
 
+path <- file.path(path, "salmon")
+
 # Convert transcript-level quant files to gene-level counts with tximport
 quant_files = list.files(path, pattern = "quant.sf", recursive = T, full.names = T)
-names(quant_files) <- basename(dirname(fns))
+names(quant_files) <- basename(dirname(quant_files))
+
+print(quant_files)
 
 tx2gene = read.csv(file.path(path, "salmon_tx2gene.tsv"), sep="\t", header = FALSE)
 colnames(tx2gene) <- c("TXNAME", "GENEID", "SYMBOL")

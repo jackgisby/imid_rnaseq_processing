@@ -118,7 +118,7 @@ nextflow \
   --geo "${GSE}" \
   -c "conf/apocrita.config" \
   -c "conf/post_processing.config" \
-    "${RESUME}"
+  "${RESUME}"
 
 # Remove temporary files, including fastqs
 # rm -r "${TMP_DIR}"

@@ -18,6 +18,6 @@ process NORMALISE {
     """
     ls
     echo "$projectDir"
-    Rscript --verbose "$projectDir/bin/normalise.R" ""
+    Rscript --verbose "$projectDir/bin/normalise.R" "."
     """
 }
