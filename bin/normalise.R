@@ -26,8 +26,6 @@ path <- file.path(path, "salmon")
 quant_files = list.files(path, pattern = "quant.sf", recursive = T, full.names = T)
 names(quant_files) <- basename(dirname(quant_files))
 
-print(quant_files)
-
 tx2gene = read.csv(file.path(path, "salmon_tx2gene.tsv"), sep="\t", header = FALSE)
 colnames(tx2gene) <- c("TXNAME", "GENEID", "SYMBOL")
 
@@ -35,7 +33,6 @@ colnames(tx2gene) <- c("TXNAME", "GENEID", "SYMBOL")
 # Abundances = TPM?
 # Length = effective gene lengths
 txi = tximport::tximport(quant_files, type = "salmon", tx2gene = tx2gene)
-head(txi$counts)
 
 # Normalisation based on https://bioconductor.org/packages/release/bioc/vignettes/tximport/inst/doc/tximport.html
 cts <- txi$counts
@@ -70,7 +67,7 @@ y <- y[keep, ]
 saveRDS(y, "filtered_dgelist.rds")
 
 cpm <- edgeR::cpm(y, offset = y$offset, log = FALSE)
-logcpm <- edgeR::cpm(y, offset = y$offset, log = FALSE)
+logcpm <- edgeR::cpm(y, offset = y$offset, log = TRUE)
 
 write.csv(cpm, "filtered_cpm.csv")
 write.csv(logcpm, "filtered_logcpm.csv")
