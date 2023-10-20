@@ -7,8 +7,8 @@ process GET_PHENO {
     input:
     val geo
 
-    // output:
-    // path "pheno_data.csv"
+    output:
+    path "pheno_data.csv"
 
     script:
     """
