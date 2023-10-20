@@ -1,13 +1,41 @@
 #!/bin/bash
 #$ -pe smp 2
-#$ -l h_vmem=4G
+#$ -l h_vmem=3G
 #$ -l h_rt=1:0:0
 #$ -wd ~/nextflow/imid_rnaseq/imid_rnaseq_processing/
-#$ -o ~/nextflow/imid_rnaseq/job_out/
-#$ -e ~/nextflow/imid_rnaseq/job_out/
+#$ -o ~/nextflow/imid_rnaseq/job_out//
+#$ -e ~/nextflow/imid_rnaseq/job_out//
 #$ -j y
 
 # qsub ~/nextflow/imid_rnaseq/imid_rnaseq_processing/ingest_data.sh
+
+# TODO: Adapt for batch processing
+# 1 - Add batch option
+# 2 - Change results dir to reflect batch
+# 3 - Make it so existing sample IDs are used instead of writing the study ID
+
+## Settings
+# Change the GSE variable, along with the -o and -e header
+# Remove temporary files after pipeline completion
+
+# Dataset to be processed
+GSE=""
+
+# Where to output results
+RES_DIR="/data/home/${USER}/nextflow/imid_rnaseq/ingested_data/"
+TMP_DIR="/data/scratch/${USER}/temp/"
+
+# Nextflow profile to use
+PROFILE="singularity"
+
+# Whether to download data from GEO/SRA
+RUN_FETCHNGS=true
+RUN_RNASEQ=true
+RESUME=false
+
+if [ "${RESUME}" = true ]; then
+  RESUME="-resume"
+fi
 
 # Fail on error
 set -e
@@ -16,22 +44,6 @@ set -e
 module load nextflow
 
 nextflow help
-
-# Dataset to be processed
-GSE="GSM2879618"
-
-# Where to output results
-RES_DIR="/data/home/${USER}/nextflow/imid_rnaseq/test"
-TMP_DIR="/data/scratch/${USER}/temp/"
-
-## Other settings
-# Whether to download data from GEO/SRA
-RUN_FETCHNGS=false
-RUN_RNASEQ=false
-RESUME=true
-
-# Nextflow profile to use
-PROFILE="singularity"
 
 # Function creates subfolders within the results
 create_folder () {
@@ -54,10 +66,8 @@ cp_from_tmp () {
 export NXF_TMP="${TMP_DIR}"
 export NXF_WORK="${TMP_DIR}/work"
 export NXF_OPTS="-Xms1g -Xmx4g"
+export NXF_SINGULARITY_CACHEDIR="/data/scratch/${USER}/singularity/"
 
-if [ "${RESUME}" = true ]; then
-  RESUME="-resume"
-fi
 # Get data using fetchngs
 if [ "${RUN_FETCHNGS}" = true ]; then
 
@@ -94,7 +104,6 @@ if [ "${RUN_RNASEQ}" = true ]; then
     --outdir "${TMP_DIR}/${GSE}" \
     -c "conf/rnaseq.config" \
     -c "conf/apocrita.config" \
-    -resume \
     "${RESUME}"
 
   cp_from_tmp "multiqc"
