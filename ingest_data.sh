@@ -7,16 +7,11 @@
 #$ -e ~/nextflow_res/imid_rnaseq/job_out/GSE165512/
 #$ -j y
 
-# TODO: Adapt for batch processing
-# 1 - Add batch option
-# 2 - Change results dir to reflect batch
-# 3 - Make it so existing sample IDs are used instead of writing the study ID
-
 ## Settings
-# Change the GSE variable, along with the -o and -e header
-# Check temporary files from previous run have been removed
-# Check run/resume settings below and script runtime above
-# qsub ~/nextflow_res/imid_rnaseq/imid_rnaseq_processing/ingest_data.sh
+# 1. Change the GSE variable, along with the -o and -e header
+# 2. Check temporary files from previous run have been removed
+# 3. Check run/resume settings below and script runtime above
+# 4. qsub ~/nextflow_res/imid_rnaseq/imid_rnaseq_processing/ingest_data.sh
 
 # Dataset to be processed
 GSE="GSE165512"
@@ -133,3 +128,8 @@ create_folder "${RES_DIR}/${GSE}/gse_pheno"
 
 # Remove temporary files, including fastqs
 # rm -r "${TMP_DIR}"
+
+# TODO: Adapt for batch processing
+# 1 - Add batch option
+# 2 - Change results dir to reflect batch
+# 3 - Make it so existing sample IDs are used instead of writing the study ID
