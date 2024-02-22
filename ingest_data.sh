@@ -77,7 +77,7 @@ if [ "${RUN_FETCHNGS}" = true ]; then
     --outdir "${TMP_DIR}/${GSE}" \
     -c "conf/fetchngs.config" \
     -c "conf/apocrita.config" \
-    "${RESUME}"
+    "${RESUME}" --validate_params false
 
   create_folder "${RES_DIR}/${GSE}/samplesheet"
   cp_from_tmp "samplesheet/samplesheet.csv"
